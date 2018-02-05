@@ -7,7 +7,7 @@ make `package.json` file in root of your project:
 
 ```javascript
 {
-  "name": "<YOUR PROJECT>",
+  "name": "MopinionSDK",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -34,9 +34,9 @@ allprojects {
             // All of React Native (JS, Android binaries) is installed from npm
             url "$rootDir/node_modules/react-native/android"
         }
-        maven { 
-	        url 'https://jitpack.io' 
-		    }
+        maven {
+            url  "https://dl.bintray.com/mopinion/MopinionSDK"
+        }
     }
 }
 ```
@@ -49,11 +49,11 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.github.mopinion:mopinion-sdk-android:0.1.0"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.0"
 }
 ```
 ### test code
 ```java
-Mopinion M = new Mopinion(this, "3t5sg11dpm3vrpoquxirnsdvi4dff12y4vv");
-M.event("click 1");
+Mopinion M = new Mopinion(Context context, String key);
+M.event(String event);
 ```
