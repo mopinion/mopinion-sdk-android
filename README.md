@@ -3,7 +3,10 @@ Mopinion Mobile SDK for android
 
 ## install
 
-make `package.json` file in root of your project:
+### npm
+
+[Install Node.js/npm](https://www.npmjs.com/get-npm)
+make `package.json` in the root of your project:
 
 ```javascript
 {
@@ -23,7 +26,9 @@ make `package.json` file in root of your project:
 
 `$ npm install`
 
-In the main project gradle file:
+### Android Studio
+
+In the main project `build.gradle` file:
 
 ```gradle
 allprojects {
