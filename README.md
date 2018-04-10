@@ -54,7 +54,7 @@ dependencies {
 }
 ```
 
-In the `AndroidManifest.xml`:
+Put internet permissions in the `AndroidManifest.xml`:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -62,7 +62,6 @@ In the `AndroidManifest.xml`:
     package="com.example.app">
     
 		<uses-permission android:name="android.permission.INTERNET" />
-		<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 		
 		<application
 		...
