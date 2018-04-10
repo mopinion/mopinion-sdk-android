@@ -6,17 +6,13 @@ Mopinion Mobile SDK for android
 ### npm
 
 [Install Node.js/npm](https://www.npmjs.com/get-npm)
+
 make `package.json` in the root of your project:
 
 ```javascript
 {
   "name": "MopinionSDK",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-	"postinstall": "sed -i '' 's\/#import <RCTAnimation\\/RCTValueAnimatedNode.h>\/#import \"RCTValueAnimatedNode.h\"\/' ./node_modules/react-native/Libraries/NativeAnimation/RCTNativeAnimatedNodesManager.h && sed -i '' 's#<fishhook/fishhook.h>#\"fishhook.h\"#g' ./node_modules/react-native/Libraries/WebSocket/RCTReconnectingWebSocket.m"
-  },
   "dependencies": {
     "react": "16.0.0",
     "react-native": "0.51.0"
@@ -57,8 +53,29 @@ dependencies {
     implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.0"
 }
 ```
+
+In the `AndroidManifest.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.app">
+    
+		<uses-permission android:name="android.permission.INTERNET" />
+		<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+		
+		<application
+		...
+```
+
 ### test code
 ```java
-Mopinion M = new Mopinion(Context context, String key);
+Mopinion M = new Mopinion(Context context, String key, boolean log);
 M.event(String event);
+```
+
+### example:
+```java
+Mopinion M = new Mopinion(this, "12345abcde", true);
+M.event("button_1");
 ```
