@@ -18,7 +18,7 @@ make a `package.json` file in the root of your project:
 ```javascript
 {
   "name": "MopinionSDK",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "dependencies": {
     "react": "16.0.0",
     "react-native": "0.51.0"
@@ -59,7 +59,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.2"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.3"
 }
 ```
 
