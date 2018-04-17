@@ -54,9 +54,20 @@ The `url "$rootDir/node_modules/react-native/android"` assumes the `node_modules
 In the `build.gradle` file of your main component add the React Native and Mopinion SDK Libraries:
 
 ```gradle
+android {
+	...
+	defaultConfig {
+		...
+		ndk {
+		        abiFilters "armeabi", "armeabi-v7a", "x86", "x86_64", "mips", "mips64"
+	    }
+	    packagingOptions {
+			 exclude "lib/arm64-v8a/libgnustl_shared.so"
+	    }
+	}
+}
+...
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
     ...
     implementation "com.facebook.react:react-native:+"    
     implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.3"
