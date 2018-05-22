@@ -9,6 +9,8 @@ There is also a Mopinion Mobile SDK for iOS available [here](https://github.com/
 The Mopinion Mobile SDK Library can be installed by adding it `build.gradle` file of your project.
 The SDK is partly built with [React Native](https://facebook.github.io/react-native/), it needs the React Native Library to function.
 
+You can see what your mobile forms will look like in your app by downloading our [Mopinion Forms](https://play.google.com/store/apps/details?id=com.mopinion.news) preview app in the Google Play Store.
+
 ### npm
 
 [Install Node.js/npm](https://www.npmjs.com/get-npm)
