@@ -72,7 +72,7 @@ android {
 dependencies {
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.6"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.7"
 }
 ```
 
