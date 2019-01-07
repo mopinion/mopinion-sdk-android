@@ -30,6 +30,10 @@ make a `package.json` file in the root of your project:
 
 `$ npm install`
 
+### dependencies
+
+- [Google Volley](https://github.com/google/volley)
+
 ### Android Studio
 
 In the main project `build.gradle` file add the following:
@@ -72,7 +76,8 @@ android {
 dependencies {
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.1.9"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.2.1"
+    implementation "com.android.volley:volley:1.1.1"
 }
 ```
 
