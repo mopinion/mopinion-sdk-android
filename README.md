@@ -22,8 +22,8 @@ make a `package.json` file in the root of your project:
   "name": "MopinionSDK",
   "version": "0.1.0",
   "dependencies": {
-    "react": "16.0.0",
-    "react-native": "0.51.0"
+    "react": "16.8.0",
+    "react-native": "^0.59.4"
   }
 }
 ```
@@ -76,7 +76,7 @@ android {
 dependencies {
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.2.2"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.0"
     implementation "com.android.volley:volley:1.1.1"
 }
 ```
@@ -109,6 +109,28 @@ The default `_button` event triggers the form, but an unlimited number of custom
 ### example:
 ```java
 Mopinion M = new Mopinion(this, "12345abcde");
+M.event("_button");
+```
+
+## extra data
+
+From version `0.3.0` it's also possible to send extra data from the app to your form. 
+This can be done by adding a key and a value to the `data()` method.
+The data should be added before the `event()` method is called if you want to include the data in the form that comes up for that event.
+
+```java
+M.data(String key, String value);
+```
+
+Example:
+```java
+import com.mopinion.mopinionsdkweb.*;
+...
+Mopinion M = new Mopinion(this, "12345abcde");
+...
+M.data("first name", "Andy");
+M.data("last name", "Rubin");
+...
 M.event("_button");
 ```
 
