@@ -22,8 +22,8 @@ make a `package.json` file in the root of your project:
   "name": "MopinionSDK",
   "version": "0.1.0",
   "dependencies": {
-    "react": "16.8.0",
-    "react-native": "^0.59.4"
+    "react": "^16.8.6",
+    "react-native": "^0.59.8"
   }
 }
 ```
