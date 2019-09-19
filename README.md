@@ -23,7 +23,7 @@ make a `package.json` file in the root of your project:
   "version": "0.1.0",
   "dependencies": {
     "react": "^16.8.6",
-    "react-native": "^0.59.8"
+    "react-native": "^0.59.9"
   }
 }
 ```
@@ -76,7 +76,7 @@ android {
 dependencies {
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.1"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.2"
     implementation "com.android.volley:volley:1.1.1"
 }
 ```
