@@ -76,7 +76,7 @@ android {
 dependencies {
     ...
     implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.2"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.3"
     implementation "com.android.volley:volley:1.1.1"
 }
 ```
@@ -132,6 +132,32 @@ M.data("first name", "Andy");
 M.data("last name", "Rubin");
 ...
 M.event("_button");
+```
+
+## clear extra data
+
+From version `0.3.3` it's possible to remove all or a single key-value pair from the extra data previously supplied with the `data(key,value)` method. To remove a single key-value pair use this method:
+
+```java
+M.removeData(String key)
+```
+
+Example:
+
+```java
+M.removeData("first name")
+```
+
+To remove all supplied extra data use this method without arguments:
+
+```java
+M.removeData()
+```
+
+Example:
+
+```java
+M.removeData()
 ```
 
 ## Edit triggers
