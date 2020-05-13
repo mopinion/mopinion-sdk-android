@@ -23,7 +23,7 @@ make a `package.json` file in the root of your project:
   "version": "0.1.0",
   "dependencies": {
     "react": "^16.8.6",
-    "react-native": "^0.59.9"
+    "react-native": "^0.59.10"
   }
 }
 ```
@@ -75,8 +75,8 @@ android {
 ...
 dependencies {
     ...
-    implementation "com.facebook.react:react-native:+"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.3"
+    implementation "com.facebook.react:react-native:0.59.10"    
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.4"
     implementation "com.android.volley:volley:1.1.1"
 }
 ```
@@ -124,7 +124,7 @@ M.data(String key, String value);
 
 Example:
 ```java
-import com.mopinion.mopinionsdkweb.*;
+import com.mopinion.mopinionsdk.*;
 ...
 Mopinion M = new Mopinion(this, "12345abcde");
 ...
