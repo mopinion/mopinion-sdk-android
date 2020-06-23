@@ -19,7 +19,7 @@ make a `package.json` file in the root of your project:
 
 ```javascript
 {
-  "name": "MopinionSDK",
+  "name": "YourAppNameHere",
   "version": "0.1.0",
   "dependencies": {
     "react": "^16.8.6",
@@ -65,10 +65,7 @@ android {
 	defaultConfig {
 		...
 		ndk {
-		        abiFilters "armeabi", "armeabi-v7a", "x86", "x86_64", "mips", "mips64"
-	    }
-	    packagingOptions {
-			 exclude "lib/arm64-v8a/libgnustl_shared.so"
+		        abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips", "mips64"
 	    }
 	}
 }
@@ -76,7 +73,7 @@ android {
 dependencies {
     ...
     implementation "com.facebook.react:react-native:0.59.10"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.4"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.5"
     implementation "com.android.volley:volley:1.1.1"
 }
 ```
