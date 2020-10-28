@@ -22,8 +22,10 @@ make a `package.json` file in the root of your project:
   "name": "YourAppNameHere",
   "version": "0.1.0",
   "dependencies": {
-    "react": "^16.8.6",
-    "react-native": "^0.59.10"
+    "react": "^16.9.0",
+    "react-native": "0.61.5",
+    "@react-native-community/async-storage": "^1.12.1",
+	"react-native-webview": "^10.10.0"
   }
 }
 ```
@@ -48,35 +50,63 @@ allprojects {
             url "$rootDir/node_modules/react-native/android"
         }
         maven {
+            // Android JSC is installed from npm
+            url("$rootDir/node_modules/jsc-android/dist")
+        }
+        maven {
             url  "https://dl.bintray.com/mopinion/MopinionSDK"
         }
     }
 }
 ```
 
-The `url "$rootDir/node_modules/react-native/android"` assumes the `node_modules` folder is in the root of your project. Otherwise you can change this location to  
+The `urls "$rootDir/node_modules/*"` assumes the `node_modules` folder is in the root of your project. Otherwise you can change this location to  
 `url "$rootDir/../node_modules/react-native/android"`, for example.
 
 In the `build.gradle` file of your main component add the React Native and Mopinion SDK Libraries:
 
 ```gradle
+...
+project.ext.react = [
+    enableHermes: false,  // clean and rebuild if changing
+]
+
+def enableHermes = project.ext.react.get("enableHermes", false);
+def jscFlavor = 'org.webkit:android-jsc:+'
+...
 android {
 	...
 	defaultConfig {
 		...
 		ndk {
-		        abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips", "mips64"
+		        abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
 	    }
 	}
 }
 ...
 dependencies {
     ...
-    implementation "com.facebook.react:react-native:0.59.10"    
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.3.6"
+    implementation "com.facebook.react:react-native:0.61.5"    
+    implementation project(':react-native-webview')
+    implementation project(':@react-native-community_async-storage')
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.4.0"
     implementation "com.android.volley:volley:1.1.1"
 }
 ```
+
+In the `settings.gradle` file of your main component, add the required React Native Projects:
+
+```gradle
+...
+include ':react-native-webview'
+project(':react-native-webview').projectDir = new File(rootProject.projectDir, 'node_modules/react-native-webview/android')
+include ':@react-native-community_async-storage'
+project(':@react-native-community_async-storage').projectDir = new File(rootProject.projectDir, 'node_modules/@react-native-community/async-storage/android')
+
+```
+
+Again, the above assumes the `node_modules/` folder is in the root of your project. Otherwise you can change this location to  
+`../node_modules/`, for example.
 
 The SDK needs to connect to the Mopinion servers so the internet permission should be added to your `AndroidManifest.xml`:
 
@@ -165,6 +195,6 @@ The custom defined events can be used in combination with rules:
 
 * trigger: `passive` or `proactive`. A passive form always shows when the event is triggered. A proactive form only shows once, you can set the refresh time after which the form should show again.  
 * percentage (proactive trigger): % of users that should see the form  
-* date: only show the form at at, after or before a specific date or date range  
-* time: only show the form at at, after or before a specific time or time range  
-* target: the OS the form should show (iOS or Android) 
+* date: only show the form at, after or before a specific date or date range
+* time: only show the form at, after or before a specific time or time range  
+* target: the OS the form should show (iOS or Android)
