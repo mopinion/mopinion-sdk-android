@@ -4,11 +4,22 @@ To use Mopinion mobile feedback forms in your app you can include the SDK as a L
 
 There is also a Mopinion Mobile SDK for iOS available [here](https://github.com/mopinion/mopinion-sdk-ios).
 
-## Release notes for version 0.4.0
+## Release notes for version 0.4.1
+
+### Artifact location change
+- Our SDK has changed location as bintray has stopped service from May 2021.
+- Resultingly, in your main project `build.gradle` file, our SDK no longer needs the lines with `maven { ... dl.bintray.com ... }`.
+- Also the implementation path has changed.
+- You will need a github account to generate your personal read access token.
+- The github token and your github username are required to include the SDK in your Android project. 
+- This bumps the version from 0.4.0 to 0.4.1 but functionally both version are the same.
+- We've updated our instructions here to reflect this.
+
 ### New features
 - Migrated to AndroidX (breaking change).
 - Migrated to react-native 0.61.5 (breaking change). 
 - Thumbnail and preview of screenshot.
+- Requires github account.
 
 ### Improvements
 - New random distribution algorithm for the proactive trigger condition: percentage of users.
@@ -20,7 +31,17 @@ There is also a Mopinion Mobile SDK for iOS available [here](https://github.com/
 The Mopinion Mobile SDK Library can be installed by adding it `build.gradle` file of your project.
 The SDK is partly built with [React Native](https://facebook.github.io/react-native/), it needs the React Native Library to function.
 
-You can see what your mobile forms will look like in your app by downloading our [Mopinion Forms](https://play.google.com/store/apps/details?id=com.mopinion.news) preview app in the Google Play Store.
+You can see how your mobile forms will look like in your app by downloading our [Mopinion Forms](https://play.google.com/store/apps/details?id=com.mopinion.news) preview app in the Google Play Store.
+
+### Create a Github personal access token
+You'll need this instead of a password. Create a github personal access token if you don't have one yet, using [their instructions](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). You'll need to request[read:packages permissions](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#about-scopes-and-permissions-for-package-registries) to access the SDK.
+
+Put your user name and PAT in environment variables:
+
+```
+$ setenv GITHUBPKG_USERNAME yourgithubusername
+$ setenv GITHUBPKG_APITOKEN yourgithubpat
+```
 
 ### Prepare folder structure
 
@@ -72,6 +93,15 @@ Your project folder should now at least contain the following:
 In the main project `android/build.gradle` file, add the following:
 
 ```gradle
+buildscript {
+    ext.kotlin_version = '1.4.31'
+...
+}
+
+plugins {
+    id 'maven'
+}
+
 allprojects {
     repositories {
         google()
@@ -85,8 +115,13 @@ allprojects {
             url("$rootDir/../node_modules/jsc-android/dist")
         }
         maven {
-            url  "https://dl.bintray.com/mopinion/MopinionSDK"
+            url 'https://maven.pkg.github.com/mopinion/mopinion-sdk-android'
+            credentials {
+                username = GITHUBPKG_USERNAME
+                password = GITHUBPKG_APITOKEN
+            }
         }
+        maven { url 'https://www.jitpack.io' }
     }
 }
 ```
@@ -120,11 +155,20 @@ android {
 ...
 dependencies {
     ...
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "com.android.volley:volley:1.2.0"
     implementation "com.facebook.react:react-native:0.61.5"    
     implementation project(':react-native-webview')
     implementation project(':@react-native-community_async-storage')
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.4.0"
-    implementation "com.android.volley:volley:1.2.0"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.4.1"
+
+    if (enableHermes) {
+        def hermesPath = "../../node_modules/hermes-engine/android/";
+        debugImplementation files(hermesPath + "hermes-debug.aar")
+        releaseImplementation files(hermesPath + "hermes-release.aar")
+    } else {
+        implementation jscFlavor
+    }
 }
 ```
 
