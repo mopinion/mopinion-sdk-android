@@ -4,29 +4,34 @@ To use Mopinion mobile feedback forms in your app you can include the SDK as a L
 
 There is also a Mopinion Mobile SDK for iOS available [here](https://github.com/mopinion/mopinion-sdk-ios).
 
-## Release notes for version 0.4.1
+### Contents
 
-### Artifact location change
-- Our SDK has changed location as bintray has stopped service from May 2021.
-- Resultingly, in your main project `build.gradle` file, our SDK no longer needs the lines with `maven { ... dl.bintray.com ... }`.
-- Also the implementation path has changed.
-- You will need a github account to generate your personal read access token.
-- The github token and your github username are required to include the SDK in your Android project. 
-- This bumps the version from 0.4.0 to 0.4.1 but functionally both version are the same.
-- We've updated our instructions here to reflect this.
+- Release notes
+- [Installation](#install)
+- [Implement the SDK](#implement)
+- [Submitting extra data](#extra-data)
+- [Using callback mode](#callback-mode)
+- [Edit triggers](#edit-triggers)
+
+## Release notes for version 0.5.0
 
 ### New features
-- Migrated to AndroidX (breaking change).
-- Migrated to react-native 0.61.5 (breaking change). 
-- Thumbnail and preview of screenshot.
-- Requires github account.
+- 2 new variants of the method `event()` add a asynchronous callback response `onMopinionEvent()`, to let you receive a certain `MopinionEvent` from the SDK about the feedback form.
+- Currently supported `MopinionEvents` are when the form is displayed, when the user submitted the form or when the form closed.
+- The callback includes an object `MopinionResponse` that can optionally contain data associated with some events. Data can be for example the form key, the form name or miscellanous data as JSONObject.
+- The new callback behaviour is optional. You don't need to change your existing code, the SDK by default will behave as before without making callbacks.
+- OS version condition check added. Previously, the version was ignored, you could only check the OS type.
 
 ### Improvements
-- New random distribution algorithm for the proactive trigger condition: percentage of users.
-- Autoclose for web forms.
-- Margins for thank-you page.
+- Fixed an issue where some forms of the web type sometimes tried to open as in-app type or vice versa. The latter situation went unnoticed, but the first could cause missing features in the form appearance.
 
-## install
+### Other changes
+- Removed dependency on react-native-webview.
+- Built with Gradle 6.7.1.
+
+<br>
+
+## <a name="install">install</a>
 
 The Mopinion Mobile SDK Library can be installed by adding it `build.gradle` file of your project.
 The SDK is partly built with [React Native](https://facebook.github.io/react-native/), it needs the React Native Library to function.
@@ -34,7 +39,7 @@ The SDK is partly built with [React Native](https://facebook.github.io/react-nat
 You can see how your mobile forms will look like in your app by downloading our [Mopinion Forms](https://play.google.com/store/apps/details?id=com.mopinion.news) preview app in the Google Play Store.
 
 ### Create a Github personal access token
-You'll need this instead of a password. Create a github personal access token if you don't have one yet, using [their instructions](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). You'll need to request[read:packages permissions](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#about-scopes-and-permissions-for-package-registries) to access the SDK.
+You'll need this instead of a password. Create a github personal access token if you don't have one yet, using [their instructions](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). You'll need to request [read:packages permissions](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#about-scopes-and-permissions-for-package-registries) to access the SDK.
 
 Put your user name and PAT in environment variables:
 
@@ -68,8 +73,7 @@ make a `package.json` file in the root of your project:
   "dependencies": {
     "react": "16.9.0",
     "react-native": "0.61.5",
-    "@react-native-community/async-storage": "^1.12.1",
-	"react-native-webview": "^11.4.0"
+    "@react-native-community/async-storage": "^1.12.1"
   }
 }
 ```
@@ -93,11 +97,6 @@ Your project folder should now at least contain the following:
 In the main project `android/build.gradle` file, add the following:
 
 ```gradle
-buildscript {
-    ext.kotlin_version = '1.4.31'
-...
-}
-
 plugins {
     id 'maven'
 }
@@ -105,7 +104,6 @@ plugins {
 allprojects {
     repositories {
         google()
-        jcenter()
         maven {
             // All of React Native (JS, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
@@ -126,7 +124,7 @@ allprojects {
 }
 ```
 
-The `urls "$rootDir/../node_modules/*"` assumes the `node_modules` folder is in the folder above the your app folder.
+The `urls "$rootDir/../node_modules/*"` assumes the folder `node_modules` is in the folder above your app folder.
 
 #### android/app/build.gradle
 
@@ -151,16 +149,21 @@ android {
 		        abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
 	    }
 	}
+	...
+	compileOptions {
+		sourceCompatibility 1.8
+		targetCompatibility 1.8
+	}
+	
 }
 ...
 dependencies {
     ...
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-    implementation "com.android.volley:volley:1.2.0"
+    implementation "com.android.volley:volley:1.2.1"
     implementation "com.facebook.react:react-native:0.61.5"    
-    implementation project(':react-native-webview')
     implementation project(':@react-native-community_async-storage')
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.4.1"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.5.0"
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
@@ -182,8 +185,6 @@ include ':app'
 ...
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 
-include ':react-native-webview'
-project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
 include ':@react-native-community_async-storage'
 project(':@react-native-community_async-storage').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/async-storage/android')
 
@@ -206,7 +207,9 @@ The SDK needs to connect to the Mopinion servers so the internet permission shou
 		...
 ```
 
-## Implement the SDK
+<br>
+
+### <a name="implement">Implement the SDK</a>
 For instance, in your MainActivity.java:
 
 ```java
@@ -216,7 +219,7 @@ M.event(String event);
 
 * The `context` is the Activity context from which you would like to activate the feedback form, normally `this`.
 * The `key` should be replaced with your specific deployment key. This key can be found in your Mopinion account at the `Feedback forms` section under `Deployments`.
-* The `log` flag can be set to `true` while developing the app to see Logcat messages in Android Studio from the Mopinion SDK library. (The default is `false` if not given.)
+* The `log` flag can be set to `true` while developing the app to see Logcat messages in Android Studio from the Mopinion SDK library. (The default is `false` if not supplied.)
 * The `event` is a specific event that can be connected to a feedback form action in the Mopinion system.  
 * The default `_button` event triggers the form, but an unlimited number of custom events can also be added.
 
@@ -226,17 +229,22 @@ Mopinion M = new Mopinion(this, "12345abcde");
 M.event("_button");
 ```
 
-## extra data
+Note that the event call is asynchronous.
+
+<br>
+
+## <a name="extra-data">extra data</a>
 
 From version `0.3.0` it's also possible to send extra data from the app to your form. 
-This can be done by adding a key and a value to the `data()` method.
-The data should be added before the `event()` method is called if you want to include the data in the form that comes up for that event.
+To do this, supply a key and a value to the `data()` method.
+Add the data before calling the `event()` method if you want to include the data in the form that comes up for that event.
 
 ```java
 M.data(String key, String value);
 ```
 
-Example:
+### Example:
+
 ```java
 import com.mopinion.mopinionsdk.*;
 ...
@@ -256,7 +264,7 @@ From version `0.3.3` it's possible to remove all or a single key-value pair from
 M.removeData(String key)
 ```
 
-Example:
+### Example:
 
 ```java
 M.removeData("first name")
@@ -274,14 +282,169 @@ Example:
 M.removeData()
 ```
 
-## Edit triggers
-In the Mopinion system you can define events and triggers that will work with the SDK events you created in your app.
-Login to your Mopinion account and go to the form builder to use this functionality.
+<br>
 
-The custom defined events can be used in combination with rules:
+## <a name="callback-mode">Using callback mode</a>
+By default the SDK manages the feedback form autonomously without further involving your app. 
+Version 0.5.0 introduces asynchronous callbacks to inform your code of certain actions (MopinionEvent). 
+
+Provide a callback handler to receive a response, containing either data or possible error information. 
+
+
+### Procedure overview
+
+1. Call the `event()` method and pass it a callback function that implements the `MopinionEventListener.onMopinionEvent` interface.
+2. In your callback function `onMopinionEvent()`, check the kind of `mopinionEvent` and optionally call `didSucceed()` or `hasErrors()` on the `response` to check for errors.
+3. Optionally, call `hasData()` on the `response` object to check if there is data.
+4. Depending on the kind of `mopinionEvent`, check for the presence of data specified by a `ResponseDataKey` using the call `hasData(ResponseDataKey)` on the `response`.
+5. To get the data, call `getString(ResponseDataKey)` respectively `getJSONObject(ResponseDataKey)` on the `response`, depending on the type of data to retrieve.
+
+You can also provide an optional error-callback handler to `event()` to seperately receive responses with error information. In that case the primary handler only receives responses without errors.
+
+<br>
+
+### Callback variants of the `event()` method
+Triggers an event you defined in your deployment to open a form and receive MopinionEvent callbacks. If you don't specify a failHandler, the callback handler will also receive error responses.
+
+
+```java
+void event(String event, MopinionEventListener callbackHandler)
+void event(String event, MopinionEventListener callbackHandler, MopinionEventErrorListener failHandler)
+```
+
+Parameters:
+
+* `event`: The name of the event as definied in the deployment. For instance "_button".
+* `callbackHandler`: The method implementing the `MopinionEventListener` interface to handle the `onMopinionEvent()` callback.
+* `failHandler`: The method implementing the `MopinionEventErrorListener` interface to handle the `onMopinionEventError()` callback for MopinionEvents that resulted in errors.
+
+<br>
+
+### Callback methods `onMopinionEvent()` and `onMopinionEventError()`
+
+These methods you implement in your code to receive MopinionEvents. They have the same parameters to pass you a response with optional additional information. 
+What information is provided depends on the type of `MopinionEvent` and its origin.
+
+```java
+void onMopinionEvent(MopinionEvent mopinionEvent, MopinionResponse response)
+void onMopinionEventError(MopinionEvent mopinionEvent, MopinionResponse response)
+```
+
+Parameters:
+
+* `mopinionEvent`: The kind of response event that you receive from the SDK. Currently one of the following:
+	* `FORM_OPEN` : when the form is shown
+	* `FORM_SENT` : when the user has submitted the form
+	* `FORM_CLOSED` : when the form has closed
+
+* `response`: The MopinionResponse object containing additional information on the MopinionEvent. The response is never `null`, but use its `hasData()` methods to check if it contains any additional data, or `hasErrors()` for errors.
+
+<br>
+
+### MopinionResponse object
+The data collection present in this object depends on the kind of MopinionEvent and its origin. The data is a key-value collection. Both data and errors can be missing. The response object contains methods to inspect and retrieve them. 
+
+
+#### Getting data with `response.get()` and `response.hasData()`
+Check with `hasData(key)` first, as the `get<>(key)` methods can return `null`. Pass a standard `ResponseDataKey` to these methods for the data you're interested in.
+
+ResponseDataKey|Method to read it|Description
+---|---|---
+DATA_JSONOBJECT|.getJSONObject()|'raw' JSONObject with all available data
+FORM_KEY|.getString()|the internal unique identifier for the form
+FORM_NAME|.getString()|the name of the form. Distinct from the title of the form.
+
+<br>
+
+#### MopinionEvents and provided data in `response`
+This is the data that can be present for a certain MopinionEvent:
+
+MopinionEvent|ResponseDataKeys|Remarks
+---|---|---
+FORM_OPEN|DATA_JSONOBJECT|
+&nbsp;|FORM_KEY|
+&nbsp;|FORM_NAME|
+FORM_SENT|DATA_JSONOBJECT|
+&nbsp;|FORM_KEY|
+&nbsp;|FORM_NAME|
+FORM_CLOSED|DATA_JSONOBJECT|Currently only automatically closed forms provide data 
+&nbsp;|FORM_KEY|only when autoclosed
+&nbsp;|FORM_NAME|only when autoclosed
+
+The order in which MopinionEvents occur is:
+
+	1. FORM_OPEN
+	2. FORM_SENT (only if the user submits a form)
+	3. FORM_CLOSED
+
+<br>
+
+#### Reading `response` errors
+Call `response.hasErrors()` on, followed by `response.getErrorString()` to get the error as text.
+The `getErrorString()` method might return `null`.
+
+<br>
+
+### Callback handler example
+Pseudo code to show the usage of the `event()` callback using the involved objects.
+
+```java
+...
+Mopinion M = new Mopinion(this, yourdeploymentkey);
+...
+// open the form and wait for the events to appear
+M.event(event, new MopinionEventListener() {
+	@Override
+	public void onMopinionEvent(MopinionEvent mopinionEvent, MopinionResponse response) {
+		switch(mopinionEvent) {
+			case FORM_OPEN:
+				Log.d("CallbackDemo","a form opened, form key = " + response.getString(ResponseDataKey.FORM_KEY));
+				break;
+			case FORM_SENT:
+				try {
+					JSONObject jsonData = response.getJSONObject(ResponseDataKey.DATA_JSONOBJECT);
+					Log.d("CallbackDemo","User submitted the form, raw data object=" + jsonData.toString());
+				} catch (JSONException e) {
+					// something wrong with the json data
+					e.printStackTrace();
+				}
+				break;
+			case FORM_CLOSED:
+				if(response.hasData(ResponseDataKey.FORM_NAME)) {
+					Log.d("CallbackDemo", "The form '" + response.getString(ResponseDataKey.FORM_NAME) + "' closed");
+				} else {
+					Log.d("CallbackDemo", "The form closed, no name was given.");
+				}
+				break;
+			default:
+				 Log.d("CallbackDemo","Ignoring this event.");
+		}
+	}
+}, 
+// dedicated error handler
+new MopinionEventErrorListener() {
+	@Override
+	public void onMopinionEventError(MopinionEvent mopinionEvent, MopinionResponse response) {
+		if( response.hasErrors() ) {
+			Log.d("CallbackDemo","Event " + mopinionEvent.name() + " encountered an error:" + response.getErrorString());
+		}
+	}
+);
+
+```
+
+<br>
+
+## <a name="edit-triggers">Edit triggers</a>
+In the Mopinion deployment editor you can define event names and triggers that will work with the SDK event names that you used in your app.
+Login to your Mopinion account and go to Data collection, Deployments to use this functionality.
+
+![Deployment Editor](images/deployment_edit_triggers.png)
+
+The custom defined events can be used in combination with rules/conditions:
 
 * trigger: `passive` or `proactive`. A passive form always shows when the event is triggered. A proactive form only shows once, you can set the refresh time after which the form should show again.  
 * percentage (proactive trigger): % of users that should see the form  
 * date: only show the form at, after or before a specific date or date range
 * time: only show the form at, after or before a specific time or time range  
-* target: the OS the form should show (iOS or Android)
+* target: the OS the form should show (iOS or Android) for.
