@@ -1,3 +1,8 @@
+# 0.5.0
+- Introduced callback behaviour via `MopinionEvents` for callback when a form is displayed, the user has submitted a form or when a form closed.
+- OS type condition for opening forms extended with version condition check, to allow matching a specific Android version.
+- Fixed an issue where some web-type forms sometimes could open as in-app forms or vice versa, causing appearance differences.
+
 # 0.4.1
 - Artifact location change from bintray to githubpackages as bintray stopped service. We no longer need `jcenter()` in the gradle files.
 - Requires github account.

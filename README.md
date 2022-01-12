@@ -13,21 +13,17 @@ There is also a Mopinion Mobile SDK for iOS available [here](https://github.com/
 - [Using callback mode](#callback-mode)
 - [Edit triggers](#edit-triggers)
 
-## Release notes for version 0.5.0
+## Release notes for version 0.6.0
 
 ### New features
-- 2 new variants of the method `event()` add a asynchronous callback response `onMopinionEvent()`, to let you receive a certain `MopinionEvent` from the SDK about the feedback form.
-- Currently supported `MopinionEvents` are when the form is displayed, when the user submitted the form or when the form closed.
-- The callback includes an object `MopinionResponse` that can optionally contain data associated with some events. Data can be for example the form key, the form name or miscellanous data as JSONObject.
-- The new callback behaviour is optional. You don't need to change your existing code, the SDK by default will behave as before without making callbacks.
-- OS version condition check added. Previously, the version was ignored, you could only check the OS type.
+- users can select an image from their device to upload as a screenshot, or use the pre-made screenshot.
+- This new image select feature is optional and can be enabled per form in the Mopinion Form editor. By default the SDK will behave as before and will only show the pre-made screenshot.
 
 ### Improvements
-- Fixed an issue where some forms of the web type sometimes tried to open as in-app type or vice versa. The latter situation went unnoticed, but the first could cause missing features in the form appearance.
+- sdk uses react-native autolink feature, removed the need to manually specify some dependencies.
 
 ### Other changes
-- Removed dependency on react-native-webview.
-- Built with Gradle 6.7.1.
+- minSdkVersion raised from 19 to 21.
 
 <br>
 
@@ -71,9 +67,12 @@ make a `package.json` file in the root of your project:
   "name": "YourAppNameHere",
   "version": "0.1.0",
   "dependencies": {
-    "react": "16.9.0",
-    "react-native": "0.61.5",
-    "@react-native-community/async-storage": "^1.12.1"
+    "@react-native-async-storage/async-storage": "^1.15.14",
+    "create-react-class": "^15.7.0",
+    "react": "17.0.2",
+    "react-native": "0.66.3",
+    "react-native-image-picker": "^3.8.1",
+    "react-native-webview": "^11.15.0"
   }
 }
 ```
@@ -90,20 +89,38 @@ Your project folder should now at least contain the following:
 
 ### dependencies
 
-- [Google Volley](https://github.com/google/volley), installation is already included in our instructions below.
+- [Google Volley](https://github.com/google/volley), installation is already included in our instructions here for app/build.gradle.
 
 ### Android Studio
 
-In the main project `android/build.gradle` file, add the following:
+In the main project `android/build.gradle` file, add the following, minSdkVersion should be at least 21:
 
 ```gradle
+buildscript {
+    ext {
+        buildToolsVersion = "30.0.2"
+        minSdkVersion = 21
+        compileSdkVersion = 30
+        targetSdkVersion = 30
+        ndkVersion = "21.4.7075529"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:4.2.2")
+    }
+}
+
 plugins {
     id 'maven'
 }
 
 allprojects {
     repositories {
-        google()
+        mavenCentral()
+        mavenLocal()
         maven {
             // All of React Native (JS, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
@@ -112,6 +129,8 @@ allprojects {
             // Android JSC is installed from npm
             url("$rootDir/../node_modules/jsc-android/dist")
         }
+        google()
+        maven { url 'https://www.jitpack.io' }
         maven {
             url 'https://maven.pkg.github.com/mopinion/mopinion-sdk-android'
             credentials {
@@ -119,7 +138,6 @@ allprojects {
                 password = GITHUBPKG_APITOKEN
             }
         }
-        maven { url 'https://www.jitpack.io' }
     }
 }
 ```
@@ -128,42 +146,82 @@ The `urls "$rootDir/../node_modules/*"` assumes the folder `node_modules` is in 
 
 #### android/app/build.gradle
 
-In the `build.gradle` file of your main component, set the `minSdkVersion` to `19` and add the React Native and Mopinion SDK Libraries :
+In the `build.gradle` file of your main component, set the `minSdkVersion` to `21` and add the React Native and Mopinion SDK Libraries :
 
 ```gradle
+apply plugin: "com.android.application"
+
+import com.android.build.OutputFile
+
 ...
 project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-def enableHermes = project.ext.react.get("enableHermes", false);
+apply from: "../../node_modules/react-native/react.gradle"
+
+def enableSeparateBuildPerCPUArchitecture = false
+def enableProguardInReleaseBuilds = false
 def jscFlavor = 'org.webkit:android-jsc:+'
+def enableHermes = project.ext.react.get("enableHermes", false);
+def nativeArchitectures = project.getProperties().get("reactNativeDebugArchitectures")
+
 ...
 android {
+    ndkVersion rootProject.ext.ndkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
 	...
 	defaultConfig {
 		...
-		minSdkVersion 19
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
 		...
-		ndk {
-		        abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-	    }
 	}
+    splits {
+        abi {
+            reset()
+            enable enableSeparateBuildPerCPUArchitecture
+            universalApk false  // If true, also generate a universal APK
+            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+    }
+    buildTypes {
+        debug {
+            if (nativeArchitectures) {
+                ndk {
+                    abiFilters nativeArchitectures.split(',')
+                }
+            }
+        }
+    }
+    
+    // applicationVariants are e.g. debug, release
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            // For each separate APK per architecture, set a unique version code as described here:
+            // https://developer.android.com/studio/build/configure-apk-splits.html
+            // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
+            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+            def abi = output.getFilter(OutputFile.ABI)
+            if (abi != null) {  // null for the universal-debug, universal-release variants
+                output.versionCodeOverride =
+                        defaultConfig.versionCode * 1000 + versionCodes.get(abi)
+            }
+
+        }
+    }
 	...
-	compileOptions {
-		sourceCompatibility 1.8
-		targetCompatibility 1.8
-	}
 	
 }
 ...
 dependencies {
-    ...
+    implementation "com.facebook.react:react-native:0.66.3"  // From node_modules
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     implementation "com.android.volley:volley:1.2.1"
-    implementation "com.facebook.react:react-native:0.61.5"    
-    implementation project(':@react-native-community_async-storage')
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.5.0"
+
+    ...
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.6.0"
+    ...
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
@@ -173,28 +231,27 @@ dependencies {
         implementation jscFlavor
     }
 }
+...
+
+apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 ```
 
 #### android/settings.gradle
 
-In the `settings.gradle` file of your main component, comment out the `rootProject.name` line and add the required React Native Projects:
+In the `settings.gradle` file of your main component, below the `rootProject.name` line, add the required React Native Projects:
 
 ```gradle
-include ':app'
-//rootProject.name = "My Application"
+rootProject.name = "My Application"
 ...
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
-
-include ':@react-native-community_async-storage'
-project(':@react-native-community_async-storage').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/async-storage/android')
-
+include ':app'
 ```
 
 Again, the above assumes the `node_modules/` folder is in the folder above your app folder. 
 
 #### android/app/src/main/AndroidManifest.xml
 
-The SDK needs to connect to the Mopinion servers so the internet permission should be added to your `AndroidManifest.xml`:
+The SDK needs to connect to the Mopinion servers, so add the internet permission to your `AndroidManifest.xml`:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -286,9 +343,9 @@ M.removeData()
 
 ## <a name="callback-mode">Using callback mode</a>
 By default the SDK manages the feedback form autonomously without further involving your app. 
-Version 0.5.0 introduces asynchronous callbacks to inform your code of certain actions (MopinionEvent). 
+Version 0.5.0 introduced asynchronous callbacks to inform your code of certain actions (MopinionEvent). 
 
-Provide a callback handler to receive a response, containing either data or possible error information. 
+Provide a callback handler to receive a response, containing either data or optional error information. 
 
 
 ### Procedure overview
@@ -447,4 +504,4 @@ The custom defined events can be used in combination with rules/conditions:
 * percentage (proactive trigger): % of users that should see the form  
 * date: only show the form at, after or before a specific date or date range
 * time: only show the form at, after or before a specific time or time range  
-* target: the OS the form should show (iOS or Android) for.
+* target: the OS (iOS or Android), and optionally the OS-versions, the form should show for.
