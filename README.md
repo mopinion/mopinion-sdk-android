@@ -13,17 +13,10 @@ There is also a Mopinion Mobile SDK for iOS available [here](https://github.com/
 - [Using callback mode](#callback-mode)
 - [Edit triggers](#edit-triggers)
 
-## Release notes for version 0.6.0
+## Release notes for version 0.7.0
 
 ### New features
-- users can select an image from their device to upload as a screenshot, or use the pre-made screenshot.
-- This new image select feature is optional and can be enabled per form in the Mopinion Form editor. By default the SDK will behave as before and will only show the pre-made screenshot.
-
-### Improvements
-- sdk uses react-native autolink feature, removed the need to manually specify some dependencies.
-
-### Other changes
-- minSdkVersion raised from 19 to 21.
+- Support for Mopinion Metrics on form shown, next page, previous page, feedback sent and form hidden. This feature can be en-/disabled per form in the Mopinion form editor, under "Integration".
 
 <br>
 
@@ -218,7 +211,7 @@ dependencies {
     implementation "com.android.volley:volley:1.2.1"
 
     ...
-    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.6.0"
+    implementation "com.mopinion.mopinionsdk:mopinionsdk:0.7.0"
     ...
 
     if (enableHermes) {

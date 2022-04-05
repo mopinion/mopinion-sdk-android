@@ -1,3 +1,8 @@
+# 0.6.0
+- Introduced option for users to upload an image from their device as a screenshot.
+- sdk uses react-native autolink feature, removed the need to manually specify some dependencies.
+- minSdkVersion raised to 21.
+
 # 0.5.0
 - Introduced callback behaviour via `MopinionEvents` for callback when a form is displayed, the user has submitted a form or when a form closed.
 - OS type condition for opening forms extended with version condition check, to allow matching a specific Android version.
